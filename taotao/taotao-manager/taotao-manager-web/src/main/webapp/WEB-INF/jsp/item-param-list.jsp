@@ -17,10 +17,14 @@
 <div id="itemEditWindow" class="easyui-window" title="编辑商品" data-options="modal:true,closed:true,iconCls:'icon-save',href:'/item-edit'" style="width:80%;height:80%;padding:10px;">
 </div>
 <script>
-	function formatItemParamData(value , index){
-
-		return value;
-	}
+    function formatItemParamData(value , index){
+        var json = JSON.parse(value);
+        var array = [];
+        $.each(json,function(i,e){
+            array.push(e.group);
+        });
+        return array.join(",");
+    }
 
     function getSelectionsIds(){
     	var itemList = $("#itemParamList");
@@ -38,7 +42,7 @@
         iconCls:'icon-add',
         handler:function(){
         	TAOTAO.createWindow({
-        		url : "/item-param-add",
+        		url :basePath+"/item-param-add",
         	});
         }
     },{
@@ -59,7 +63,7 @@
         	$.messager.confirm('确认','确定删除ID为 '+ids+' 的商品规格吗？',function(r){
         	    if (r){
         	    	var params = {"ids":ids};
-                	$.post("/item/param/delete",params, function(data){
+                	$.post(basePath+"/item/param/delete",params, function(data){
             			if(data.status == 200){
             				$.messager.alert('提示','删除商品规格成功!',undefined,function(){
             					$("#itemParamList").datagrid("reload");
