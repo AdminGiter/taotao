@@ -8,8 +8,6 @@ package com.taotao.common.bean;
  * @description  通用返回类
  */
 public class TaotaoResult {
-
-    
     /**
      * @Description: 返回成功的标志位
      */

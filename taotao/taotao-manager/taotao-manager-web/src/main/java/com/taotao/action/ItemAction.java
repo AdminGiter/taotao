@@ -1,6 +1,7 @@
 package com.taotao.action;
 
 import com.github.pagehelper.PageInfo;
+import com.taotao.common.bean.TaotaoResult;
 import com.taotao.common.utils.CurrentTimeUtil;
 import com.taotao.pojo.TbItem;
 import com.taotao.service.ItemService;
@@ -48,30 +49,22 @@ public class ItemAction {
 
     @ResponseBody
     @RequestMapping("/save")
-    public Object saveTbItem(TbItem tbItem,String desc){
+    public TaotaoResult saveTbItem(TbItem tbItem, String desc){
         String timeStamep= CurrentTimeUtil.getCurrwntTime();
         logger.info(timeStamep+"新增产品开始："+tbItem.getTitle());
-        Map<String,Object> map=new HashMap<>();
-        map.put("status", "error");
-        boolean status = itemService.addItem(timeStamep,tbItem,desc);
-        if (status){
-            map.put("status", "success");
-        }
-        logger.info(timeStamep+"新增产品结束："+map);
-        return map;
+        TaotaoResult taotaoResult = itemService.addItem(timeStamep,tbItem,desc);
+        logger.info(timeStamep+"新增产品结束："+taotaoResult.getStatus());
+        return taotaoResult;
 
     }
     @ResponseBody
     @RequestMapping("/update")
-    public Object updateTbItem(TbItem tbItem,String desc) {
+    public TaotaoResult updateTbItem(TbItem tbItem,String desc) {
         String timeStamep = CurrentTimeUtil.getCurrwntTime();
-        Map<String, Object> map = new HashMap<>();
-        map.put("status", "error");
-        boolean status = itemService.updateItem(timeStamep, tbItem, desc);
-        if (status) {
-            map.put("status", "success");
-        }
-        return map;
+        logger.info(timeStamep+"修改产品开始："+tbItem.getId());
+        TaotaoResult taotaoResult =  itemService.updateItem(timeStamep, tbItem, desc);
+        logger.info(timeStamep+"修改产品开始："+taotaoResult.getStatus());
+        return taotaoResult;
     }
 
 }

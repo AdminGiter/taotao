@@ -2,6 +2,8 @@ package com.taotao.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.taotao.common.bean.TaotaoResult;
+import com.taotao.common.constance.ItemConstance;
 import com.taotao.common.utils.IdUtil;
 import com.taotao.mapper.TbItemDescMapper;
 import com.taotao.mapper.TbItemMapper;
@@ -44,56 +46,92 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public boolean addItem(String timeStamep, TbItem tbItem,String desc) {
+    public TaotaoResult addItem(String timeStamep, TbItem tbItem, String desc) {
         logger.info(timeStamep+"新增产品servcie开始");
-        boolean status=false;
+        TaotaoResult taotaoResult=new TaotaoResult();
+        taotaoResult.setStatus(TaotaoResult.ERROR);
         try {
             long id=IdUtil.getItemId();
             tbItem.setId(id);
-            tbItem.setStatus(new Byte("1"));
+            tbItem.setStatus(new Byte(ItemConstance.ITEM_STAUS_NORMAIL));
             tbItem.setCreated(new Date());
             tbItem.setUpdated(new Date());
             logger.info(timeStamep+"新增产品插库开始");
             int i=tbItemMapper.insert(tbItem);
-            TbItemDesc tbItemDesc=new TbItemDesc();
-            tbItemDesc.setItemId(id);
-            tbItemDesc.setItemDesc(desc);
-            tbItemDesc.setCreated(new Date());
-            tbItemDesc.setUpdated(new Date());
-            int j=tbItemDescMapper.insert(tbItemDesc);
+            //添加产品描述
+            String insertDescResult=insertItemDesc(id,desc);
+            if(!TaotaoResult.SUSSCESS.equals(insertDescResult)){
+                throw new Exception("新增产品描述异常");
+            }
             logger.info(timeStamep+"新增产品插库结束：i:"+i);
-            if (i==1&&j==1){
-                status=true;
+            if (i==1){
+                taotaoResult.setStatus(TaotaoResult.SUSSCESS);
             }
         }catch(Exception e){
             logger.info(timeStamep+"新增产品异常："+e.getMessage());
         }
-        logger.info(timeStamep+"新增产品servcie结束:status:"+status);
-        return status;
+        logger.info(timeStamep+"新增产品servcie结束:status:"+taotaoResult.getStatus());
+        return taotaoResult;
+    }
+
+    /**
+     * 添加商品描述
+     */
+    private String insertItemDesc(Long itemId, String desc) {
+        String result= TaotaoResult.ERROR;
+        TbItemDesc itemDesc = new TbItemDesc();
+        itemDesc.setItemId(itemId);
+        itemDesc.setItemDesc(desc);
+        itemDesc.setCreated(new Date());
+        itemDesc.setUpdated(new Date());
+        int i=tbItemDescMapper.insert(itemDesc);
+        if (1==i){
+            result= TaotaoResult.SUSSCESS;
+        }
+        return result;
     }
 
     @Override
-    public boolean updateItem(String timeStamep, TbItem tbItem,String desc) {
+    public TaotaoResult updateItem(String timeStamep, TbItem tbItem,String desc) {
         logger.info(timeStamep+"修改产品servcie开始id:"+tbItem.getId());
-        boolean status=false;
+        TaotaoResult taotaoResult=new TaotaoResult();
+        taotaoResult.setStatus(TaotaoResult.ERROR);
         try {
             logger.info(timeStamep+"修改产品更新开始");
             TbItem item=tbItemMapper.selectByPrimaryKey(tbItem.getId());
             tbItem.setUpdated(new Date());
             tbItem.setCreated(item.getCreated());
             int i=tbItemMapper.updateByPrimaryKey(tbItem);
-            TbItemDesc tbItemDesc=new TbItemDesc();
-            TbItemDesc itemDesc=tbItemDescMapper.selectByPrimaryKey(tbItem.getId());
-            itemDesc.setItemDesc(desc);
-            itemDesc.setUpdated(new Date());
-            tbItemDescMapper.updateByPrimaryKey(itemDesc);
+            //添加产品描述
+            String insertDescResult=updateItemDesc(tbItem.getId(),desc);
+            if(!TaotaoResult.SUSSCESS.equals(insertDescResult)){
+                throw new Exception("修改产品描述异常");
+            }
             logger.info(timeStamep+"修改产品更新结束：i:"+i);
             if (i==1){
-                status=true;
+                taotaoResult.setStatus(TaotaoResult.SUSSCESS);
             }
         }catch(Exception e){
             logger.info(timeStamep+"修改产品更新异常："+e.getMessage());
         }
-        return status;
+        logger.info(timeStamep+"修改产品servcie结束:status:"+taotaoResult.getStatus());
+        return taotaoResult;
     }
+
+    /**
+     * 更新商品描述
+     */
+    private String updateItemDesc(Long itemId, String desc) {
+        String result= TaotaoResult.ERROR;
+        TbItemDesc itemDesc=tbItemDescMapper.selectByPrimaryKey(itemId);
+        itemDesc.setItemDesc(desc);
+        itemDesc.setUpdated(new Date());
+        int i=tbItemDescMapper.updateByPrimaryKey(itemDesc);
+        if (1==i){
+            result= TaotaoResult.SUSSCESS;
+        }
+        return result;
+    }
+
+
 }

@@ -64,7 +64,7 @@
         			$.getJSON(basePath+'/item/desc/'+data.id,function(_data){
 
         					//UM.getEditor('itemeEditDescEditor').setContent(_data.data.itemDesc, false);
-        					itemEditEditor.html(_data.itemDesc);
+        					itemEditEditor.html(_data.data.itemDesc);
 
         			});
         			
